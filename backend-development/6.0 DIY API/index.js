@@ -29,15 +29,72 @@ app.get("/filter",(req,res)=>{
   res.json(specific);
 })
 //4. POST a new joke
-
+app.post("/jokes",(req,res)=>{
+  const newJoke = {
+    id:jokes.length+1,
+    jokesText:req.body.text,
+    JokesType:req.body.type,
+  }
+  jokes.push(newJoke);
+  console.log(jokes.slice(-1));
+  res.json(newJoke)
+})
 //5. PUT a joke
+app.put("/jokesUpdate/:id",(req,res)=>{
+  const id = req.params.id;
+  const replacement = {
+    id:id,
+    text:req.body.text,
+    type:req.body.type,
+  
+  }
+  const findIndex = jokes.findIndex((joke)=>joke.id == id);
+  console.log("before update", jokes[findIndex]);
+  jokes[findIndex]= replacement;
 
+  console.log("after update", jokes[findIndex]);
+  res.json({success:true,message:"succsesfull update",update:jokes[findIndex]})
+
+})
 //6. PATCH a joke
+app.patch("/jokesPatch/:id",(req,res)=>{
+  const id = req.params.id;
+  const existing = jokes.findIndex((joke)=>joke.id == id);
+  const existingJoke = jokes[existing];
+  const replacement = {
+    id:id,
+    text:req.body.text ||existingJoke.jokeText,
+    type:req.body.type ||existingJoke.jokeType,
+  
+  }
+  const findIndex = jokes.findIndex((joke)=>joke.id == id);
+  console.log("before update", jokes[findIndex]);
+  jokes[findIndex]= replacement;
 
+  console.log("after update", jokes[findIndex]);
+  res.json({success:true,message:"succsesfull update",update:jokes[findIndex]})
+
+})
 //7. DELETE Specific joke
-
+app.delete("/jokes/:id",(req,res)=>{
+  const id = req.params.id
+  const existing = jokes.findIndex((joke)=>joke.id == id);
+  jokes =jokes.filter((joke)=>joke !== jokes[existing] );
+  console.log(jokes)
+  res.sendStatus(200);
+})
 //8. DELETE All jokes
-
+app.delete("/all",(req,res)=>{
+  const userKey =req.query.key 
+  console.log(userKey);
+  if(userKey === masterKey){
+    jokes=[];
+    res.json({success:true,massage:"you wiped every joke out of existance" })
+  } 
+  else{
+    res.json({success:false, message: "jokes not deleted"})
+  }
+})
 app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
 });
