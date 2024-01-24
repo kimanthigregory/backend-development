@@ -30,10 +30,34 @@ app.get("/", async (req, res) => {
   // console.log(countries);
   res.render("index.ejs",{countries:countries,total:arrayLength})
 
-  db.end();
+
 
 });
 
+app.post("/add",async(req,res) =>{
+  
+  const userInput = req.body.country.toLowerCase();
+  console.log(userInput);
+  try {
+    let response = await db.query("SELECT * FROM countries ");
+    let countrys = response.rows
+    let checkUser = countrys.find((code) =>code.country_name.toLowerCase() == userInput)
+    if (checkUser){
+    console.log(checkUser);
+    await db.query("INSERT INTO visited_countries (country_code) VALUES($1)",
+    [checkUser.country_code]
+    );
+  }
+  
+  } finally {
+    db.end();
+    
+    res.redirect("/");
+    
+  }
+  
+  
+})
 
 
 app.listen(port, () => {
